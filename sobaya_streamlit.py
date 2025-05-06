@@ -7,11 +7,27 @@ import numpy as np
 
 
 df = pd.read_excel("sobaya_list.xlsx")
-store = df[["緯度", "経度", "店名", "都道府県"]].values
+store = df[["緯度", "経度", "店名", "都道府県", "画像URL"]].values
 
-def AreaMarker(df,m):
+#def AreaMarker(df,m):
+    #for data in store:
+        #folium.Marker([data[0], data[1]], tooltip=data[2] + "," + data[3]).add_to(m)
+
+def AreaMarker(df, m):
     for data in store:
-        folium.Marker([data[0], data[1]], tooltip=data[2] + "," + data[3]).add_to(m)
+        lat, lon, name, prefecture, img_url = data
+        html = f'''
+        <div>
+            <h4>{name}（{prefecture}）</h4>
+            <img src="{img_url}" width="200">
+        </div>
+        '''
+        popup = folium.Popup(html, max_width=250)
+        folium.Marker(
+            [lat, lon],
+            tooltip=f"{name}, {prefecture}",
+            popup=popup
+        ).add_to(m)
 
 
 st.title('蕎麦屋訪問記')
@@ -65,7 +81,7 @@ st.text('店名、場所は訪れた時点の情報です。閉店、移転さ�
 #
 """
 
-df_1 = df.drop(['緯度', '経度'], axis=1)
+df_1 = df.drop(['緯度', '経度' ,"画像URL"], axis=1)
 df_1 = df_1.reindex(columns=['店名', '都道府県', 'エリア'])
 df_1.index = np.arange(1, len(df) + 1)
 # df_1 = df_1.set_index('エリア')
